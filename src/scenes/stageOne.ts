@@ -1,25 +1,40 @@
 import Phaser from 'phaser'
-// import { Player, } from '../classes/player'
+import { Player, } from '../classes/player'
 
 export default class StageOneScene extends Phaser.Scene {
-  // private player!: Player
+  private player!: Player
+  // private knightSprite!: Phaser.GameObjects.Sprite
+  // private keyW: Phaser.Input.Keyboard.Key
+  // private keyA: Phaser.Input.Keyboard.Key
+  // private keyS: Phaser.Input.Keyboard.Key
+  // private keyD: Phaser.Input.Keyboard.Key
 
   constructor() {
     super(StageOneScene.name)
   }
 
   preload() {
-    this.load.image('hobbit', 'assets/characters/hobbit/hobbit.png')
-    // this.load.aseprite('hobbit', 'assets/characters/hobbit/hobbit.png', 'assets/characters/hobbit/hobbit.json')
+    // this.load.image('knight', 'assets/characters/knight/knight.png')
+    this.load.aseprite('knight', 'assets/characters/knight/knight.png', 'assets/characters/knight/knight.json')
+    this.load.aseprite('paladin', 'assets/characters/paladin/paladin.png', 'assets/characters/paladin/paladin.json')
+    // this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
+    // this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT)
+    // this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
+    // this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
   }
 
   create() {
-    // this.player = new Player(this, 100, 100)
-    this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Stage 1')
-    // const tags = this.anims.createFromAseprite('hobbit')
-    // console.log('tags', tags)
-    this.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY - 100, 'hobbit')
-      // .play({ key: 'idle', })
-      .setScale(4)
+    // console.log(this)
+    this.player = new Player(this, 100, 100, 'knight', 2)
+    // const knightTags = this.anims.createFromAseprite('knight')
+    // this.knightSprite = this.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, 'knight')
+    //   .setScale(4)
+    // this.knightSprite.play({ key: 'Attack 1', duration: 20, repeat: -1, })
+
+    // this.add.existing(this.knightSprite)
+  }
+
+  update() {
+    this.player.update()
   }
 }

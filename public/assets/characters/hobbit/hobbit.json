@@ -626,8 +626,8 @@
  },
  "meta": {
   "app": "https://www.aseprite.org/",
-  "version": "1.2.35-trial",
-  "image": "hobbit - ANIM.png",
+  "version": "1.2.32-x64",
+  "image": "hobbit.png",
   "format": "RGBA8888",
   "size": { "w": 11232, "h": 112 },
   "scale": "1",

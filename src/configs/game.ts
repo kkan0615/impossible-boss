@@ -8,4 +8,18 @@ export default {
     height: 720,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
+  autoFocus: true,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      debug: false,
+    },
+  },
+  render: {
+    antialiasGL: false,
+    pixelArt: true,
+  },
+  audio: {
+    disableWebAudio: false,
+  },
 }
