@@ -13,7 +13,8 @@ export default class HomeScene extends Phaser.Scene {
   }
 
   create() {
-    console.log('test', this.scene)
+    // @todo: test
+    this.scene.start(StageOneScene.name)
 
     const logo = this.add.image(this.cameras.main.centerX, 150, 'logo')
 
