@@ -1,8 +1,11 @@
 import { Physics, } from 'phaser'
 
 export class Actor extends Physics.Arcade.Sprite {
-  protected hp = 100
-  protected speed = 150
+  private _hp = 100
+  private _maxHp = 100
+  private _speed = 150
+  private _attackSpeed = 2
+  private _attackDamage = 30
   // protected scene!: Phaser.Scene
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, scale = 1, frame?: string | number) {
@@ -23,7 +26,7 @@ export class Actor extends Physics.Arcade.Sprite {
       alpha: 0.5,
       onStart: () => {
         if (value) {
-          this.hp = this.hp - value
+          this._hp = this._hp - value
         }
       },
       onComplete: () => {
@@ -32,16 +35,44 @@ export class Actor extends Physics.Arcade.Sprite {
     })
   }
 
-  public getHPValue() {
-    return this.hp
+  public get hp(): number {
+    return this._hp
   }
 
-  public get getSpeedValue() {
-    return this.speed
+  public set hp(value: number) {
+    this._hp = value
   }
 
-  public set setSpeedValue(newSpeed: number) {
-    this.speed = newSpeed
+  public get speed(): number {
+    return this._speed
+  }
+
+  public set speed(value: number) {
+    this._speed = value
+  }
+
+  public get maxHp(): number {
+    return this._maxHp
+  }
+
+  public set maxHp(value: number) {
+    this._maxHp = value
+  }
+
+  public get attackSpeed(): number {
+    return this._attackSpeed
+  }
+
+  public set attackSpeed(value: number) {
+    this._attackSpeed = value
+  }
+
+  public get attackDamage(): number {
+    return this._attackDamage
+  }
+
+  public set attackDamage(value: number) {
+    this._attackDamage = value
   }
 
   protected checkFlip(): void {
@@ -54,5 +85,9 @@ export class Actor extends Physics.Arcade.Sprite {
 
   protected getBody(): Physics.Arcade.Body {
     return this.body as Physics.Arcade.Body
+  }
+
+  protected attack() {
+  //
   }
 }

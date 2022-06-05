@@ -20,7 +20,8 @@ export class Player extends Actor {
     this.keyX = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X)
     // PHYSICS
     this.play({ key: 'Idle', duration: 20, repeat: -1, })
-    this.setSpeedValue = 200
+    this.on('animationcomplete', this._animationcomplete)
+    this.speed = 200
     this.getBody().setSize(30, 30)
     this.getBody().setOffset(8, 0)
   }
@@ -28,15 +29,16 @@ export class Player extends Actor {
   update() {
     this.getBody().setVelocity(0)
     if (this.isAttacking === false) {
+      // console.log('no attacking', this.isWalking)
       if (this.keyUp.isDown) {
-        this.body.velocity.y = -this.getSpeedValue
+        this.body.velocity.y = -this.speed
         if (this.isWalking == false) {
           this.isWalking = true
           this.play({ key: 'Run', repeat: -1, timeScale: 1, })
         }
       }
       if (this.keyLeft.isDown) {
-        this.body.velocity.x = -this.getSpeedValue
+        this.body.velocity.x = -this.speed
         this.flipX = true
         if (this.isWalking == false) {
           this.isWalking = true
@@ -44,19 +46,24 @@ export class Player extends Actor {
         }
       }
       if (this.keyDown.isDown) {
-        this.body.velocity.y = this.getSpeedValue
+        this.body.velocity.y = this.speed
         if (this.isWalking == false) {
           this.isWalking = true
           this.play({ key: 'Run', repeat: -1, timeScale: 1, })
         }
       }
       if (this.keyRight.isDown) {
-        this.body.velocity.x = this.getSpeedValue
+        this.body.velocity.x = this.speed
         this.flipX = false
         if (this.isWalking == false) {
           this.isWalking = true
           this.play({ key: 'Run', repeat: -1, timeScale: 1, })
         }
+      }
+
+      if (!this.keyUp.isDown && !this.keyLeft.isDown && !this.keyDown.isDown && !this.keyRight.isDown && this.isWalking) {
+        this._playIdle()
+        this.isWalking = false
       }
     }
     if (this.keyX.isDown) {
@@ -64,12 +71,22 @@ export class Player extends Actor {
     }
   }
 
-  public attack() {
-    this.play({ key: 'Attack 1', timeScale: 5, })
-    this.isAttacking = true
-    setTimeout(() => {
-      this.play({ key: 'Idle', repeat: -1, timeScale: 1, })
+  private _animationcomplete (anim: Phaser.Animations.Animation) {
+    if (anim.key === 'Attack 1') {
+      this._playIdle()
       this.isAttacking = false
-    }, 400)
+      this.isWalking = false
+    }
+  }
+
+  private _playIdle () {
+    this.play({ key: 'Idle', repeat: -1, timeScale: 1, })
+  }
+
+  public attack() {
+    if (this.isAttacking === false) {
+      this.play({ key: 'Attack 1', timeScale: 2, })
+      this.isAttacking = true
+    }
   }
 }
