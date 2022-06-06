@@ -47,6 +47,8 @@ export class Player extends Actor {
   }
 
   update() {
+    if (!this.getBody())
+      return
     this._attackRange.setPosition(this.flipX ? this.x - (this.width / 4) : this.x + (this.width / 4), this.y)
     this.hitBox.setPosition(this.x - 2, this.y + 5, )
     this.getBody().setVelocity(0)
@@ -170,5 +172,10 @@ export class Player extends Actor {
       this.scene.physics.world.add(this._attackRangeBoxBody)
       this.scene.game.events.emit('player_attack')
     }
+  }
+
+  public destroy() {
+    super.destroy()
+    this.attackRange.destroy()
   }
 }
