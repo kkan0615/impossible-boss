@@ -1,4 +1,5 @@
 import { Actor, } from './actor'
+import { Physics, } from 'phaser'
 
 export class Player extends Actor {
   private keyUp!: Phaser.Input.Keyboard.Key
@@ -6,9 +7,10 @@ export class Player extends Actor {
   private keyDown!: Phaser.Input.Keyboard.Key
   private keyRight!: Phaser.Input.Keyboard.Key
   private keyX!: Phaser.Input.Keyboard.Key
-
+  private keyC!: Phaser.Input.Keyboard.Key
+  private _attackRange!: Phaser.GameObjects.Rectangle
   private isWalking = false
-  private isAttacking = false
+  private _isAttacking = false
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, scale = 1) {
     super(scene, x, y, texture, scale)
@@ -18,48 +20,98 @@ export class Player extends Actor {
     this.keyDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
     this.keyRight = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT)
     this.keyX = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X)
+    this.keyC = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C)
+    /* UI */
+    this._attackRange = this.scene.add.rectangle(this.x, this.y, this.width / 2, this.height, )
+    this._attackRange.isFilled = false
+    this._attackRange.isStroked = true
+    scene.add.existing(this._attackRange)
+    scene.physics.add.existing(this._attackRange)
+    scene.physics.world.remove(this._attackRangeBoxBody)
+    this._attackRangeBoxBody.enable = false
+    // Hitbox
+    this.hitBox = this.scene.add.rectangle(this.x, this.y, this.width / 2.2, this.height / 1.5)
+    this.hitBox.isFilled = false
+    scene.add.existing(this.hitBox)
+    scene.physics.add.existing(this.hitBox)
+
+    // For debugging
+    this.hitBox.isStroked = true
+    this.hitBox.strokeColor = 100
     // PHYSICS
     this.play({ key: 'Idle', duration: 20, repeat: -1, })
     this.on('animationcomplete', this._animationcomplete)
     this.speed = 200
-    this.getBody().setSize(30, 30)
-    this.getBody().setOffset(8, 0)
+    this.getBody().setSize(30, 25)
+    this.getBody().setOffset(8, 5)
   }
 
   update() {
+    this._attackRange.setPosition(this.flipX ? this.x - (this.width / 4) : this.x + (this.width / 4), this.y)
+    this.hitBox.setPosition(this.x - 2, this.y + 5, )
     this.getBody().setVelocity(0)
-    if (this.isAttacking === false) {
-      // console.log('no attacking', this.isWalking)
+    if (this._isAttacking === false) {
       if (this.keyUp.isDown) {
         this.body.velocity.y = -this.speed
+        // this.getBody().setAngularVelocity()
         if (this.isWalking == false) {
-          this.isWalking = true
-          this.play({ key: 'Run', repeat: -1, timeScale: 1, })
+          this._playRun()
         }
       }
-      if (this.keyLeft.isDown) {
+      else if (this.keyLeft.isDown) {
         this.body.velocity.x = -this.speed
         this.flipX = true
         if (this.isWalking == false) {
-          this.isWalking = true
-          this.play({ key: 'Run', repeat: -1, timeScale: 1, })
+          this._playRun()
         }
       }
-      if (this.keyDown.isDown) {
+      else if (this.keyDown.isDown) {
         this.body.velocity.y = this.speed
         if (this.isWalking == false) {
-          this.isWalking = true
-          this.play({ key: 'Run', repeat: -1, timeScale: 1, })
+          this._playRun()
         }
       }
-      if (this.keyRight.isDown) {
+      else if (this.keyRight.isDown) {
         this.body.velocity.x = this.speed
         this.flipX = false
         if (this.isWalking == false) {
-          this.isWalking = true
-          this.play({ key: 'Run', repeat: -1, timeScale: 1, })
+          this._playRun()
         }
       }
+
+      if (this.keyUp.isDown && this.keyLeft.isDown) {
+        this.body.velocity.x = -this.speed
+        this.body.velocity.y = -this.speed
+        this.flipX = true
+        if (this.isWalking == false) {
+          this._playRun()
+        }
+      }
+      else if (this.keyDown.isDown && this.keyLeft.isDown) {
+        this.body.velocity.x = -this.speed
+        this.body.velocity.y = this.speed
+        this.flipX = true
+        if (this.isWalking == false) {
+          this._playRun()
+        }
+      }
+      else if (this.keyUp.isDown && this.keyRight.isDown) {
+        this.body.velocity.x = this.speed
+        this.body.velocity.y = -this.speed
+        this.flipX = false
+        if (this.isWalking == false) {
+          this._playRun()
+        }
+      }
+      else if (this.keyDown.isDown && this.keyRight.isDown) {
+        this.body.velocity.x = this.speed
+        this.body.velocity.y = this.speed
+        this.flipX = false
+        if (this.isWalking == false) {
+          this._playRun()
+        }
+      }
+
 
       if (!this.keyUp.isDown && !this.keyLeft.isDown && !this.keyDown.isDown && !this.keyRight.isDown && this.isWalking) {
         this._playIdle()
@@ -71,11 +123,29 @@ export class Player extends Actor {
     }
   }
 
+  get attackRange(): Phaser.GameObjects.Rectangle {
+    return this._attackRange
+  }
+
+  set attackRange(value: Phaser.GameObjects.Rectangle) {
+    this._attackRange = value
+  }
+
+  get isAttacking(): boolean {
+    return this._isAttacking
+  }
+
+  set isAttacking(value: boolean) {
+    this._isAttacking = value
+  }
+
   private _animationcomplete (anim: Phaser.Animations.Animation) {
     if (anim.key === 'Attack 1') {
       this._playIdle()
-      this.isAttacking = false
+      this._isAttacking = false
       this.isWalking = false
+      this._attackRangeBoxBody.enable = false
+      this.scene.physics.world.remove(this._attackRangeBoxBody)
     }
   }
 
@@ -83,10 +153,22 @@ export class Player extends Actor {
     this.play({ key: 'Idle', repeat: -1, timeScale: 1, })
   }
 
+  private _playRun () {
+    this.isWalking = true
+    this.play({ key: 'Run', repeat: -1, timeScale: 1, })
+  }
+
+  private get _attackRangeBoxBody(): Physics.Arcade.Body {
+    return this.attackRange.body as Physics.Arcade.Body
+  }
+
   public attack() {
-    if (this.isAttacking === false) {
+    if (this._isAttacking === false) {
       this.play({ key: 'Attack 1', timeScale: 2, })
-      this.isAttacking = true
+      this._isAttacking = true
+      this._attackRangeBoxBody.enable = true
+      this.scene.physics.world.add(this._attackRangeBoxBody)
+      this.scene.game.events.emit('player_attack')
     }
   }
 }

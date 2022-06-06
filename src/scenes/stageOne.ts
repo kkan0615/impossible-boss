@@ -26,9 +26,15 @@ export default class StageOneScene extends Phaser.Scene {
   create() {
     this._initMap()
     this.player = new Player(this, 200, 200, 'knight', 1)
-    this.boss = new Boss(this, 400, 300, 'trashMonster', this.player,3)
+    this.boss = new Boss(this, 400, 300, 'trashMonster', this.player,1)
     this.physics.add.collider(this.player, this.wallsLayer)
     this.physics.add.collider(this.boss, this.wallsLayer)
+
+    // Player get damage
+    this.physics.add.overlap(this.boss, this.player.hitBox, this.playerDamageOverlapCallback, null, this)
+
+    // boss get damage
+    this.physics.add.overlap(this.player.attackRange, this.boss.hitBox, this.hitOverlapCallback, null, this)
     /* Cameras setting */
     this.cameras.main.startFollow(this.player)
     this.cameras.main.zoom = 2
@@ -48,5 +54,17 @@ export default class StageOneScene extends Phaser.Scene {
     this.wallsLayer.setCollisionBetween(0, 5)
     this.wallsLayer.setCollisionByProperty({ collides: true, })
     this.physics.world.setBounds(0, 0, this.wallsLayer.width, this.wallsLayer.height)
+  }
+
+  private playerDamageOverlapCallback() {
+    if (!this.player.isDamaging) {
+      this.player.getDamage(10)
+    }
+  }
+
+  private hitOverlapCallback() {
+    if (this.player.isAttacking && !this.boss.isDamaging) {
+      this.boss.getDamage(this.player.attackDamage)
+    }
   }
 }

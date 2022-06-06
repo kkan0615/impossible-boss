@@ -5,6 +5,8 @@
 # For dev
 ## code
 https://shakuro.com/blog/phaser-js-a-step-by-step-tutorial-on-making-a-phaser-3-game
+https://labs.phaser.io/index.html?dir=&q=
+https://github.com/ourcade/phaser3-sword-swing-attack
 
 ## Ref
 https://itch.io/games/html5

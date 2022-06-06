@@ -6,7 +6,8 @@ export class Actor extends Physics.Arcade.Sprite {
   private _speed = 150
   private _attackSpeed = 2
   private _attackDamage = 30
-  // protected scene!: Phaser.Scene
+  private _hitBox!: Phaser.GameObjects.Rectangle
+  private _isDamaging = false
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, scale = 1, frame?: string | number) {
     super(scene, x, y, texture, frame)
@@ -26,11 +27,17 @@ export class Actor extends Physics.Arcade.Sprite {
       alpha: 0.5,
       onStart: () => {
         if (value) {
+          this._isDamaging = true
           this._hp = this._hp - value
         }
       },
       onComplete: () => {
         this.setAlpha(1)
+        this._isDamaging = false
+
+        if (this.hp <= 0) {
+          this.destroy()
+        }
       },
     })
   }
@@ -75,6 +82,22 @@ export class Actor extends Physics.Arcade.Sprite {
     this._attackDamage = value
   }
 
+  get hitBox(): Phaser.GameObjects.Rectangle {
+    return this._hitBox
+  }
+
+  set hitBox(value: Phaser.GameObjects.Rectangle) {
+    this._hitBox = value
+  }
+
+  get isDamaging(): boolean {
+    return this._isDamaging
+  }
+
+  set isDamaging(value: boolean) {
+    this._isDamaging = value
+  }
+
   protected checkFlip(): void {
     if (this.body.velocity.x < 0) {
       this.scaleX = -1
@@ -89,5 +112,10 @@ export class Actor extends Physics.Arcade.Sprite {
 
   protected attack() {
   //
+  }
+
+  public destroy() {
+    super.destroy()
+    this._hitBox.destroy()
   }
 }
