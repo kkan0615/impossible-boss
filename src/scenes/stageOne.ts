@@ -39,6 +39,19 @@ export default class StageOneScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.player)
     this.cameras.main.zoom = 2
 
+    /* Set game over */
+    this.game.events.once('game-over', () => {
+      console.log('done')
+      this.cameras.main.setBackgroundColor('rgba(0,0,0,0.6)')
+      this.game.scene.pause(StageOneScene.name)
+      const gameEndPhrase = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Done!!')
+        .setAlign('center')
+        .setColor('#ff0000')
+      gameEndPhrase.setPosition(
+        this.game.scale.width / 2 - gameEndPhrase.width / 2,
+        this.game.scale.height * 0.4,
+      )
+    }, this)
   }
 
   update() {
@@ -58,7 +71,7 @@ export default class StageOneScene extends Phaser.Scene {
 
   private playerDamageOverlapCallback() {
     if (!this.player.isDamaging) {
-      this.player.getDamage(10)
+      this.player.getDamage(50)
     }
   }
 

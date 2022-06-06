@@ -174,6 +174,33 @@ export class Player extends Actor {
     }
   }
 
+  public getDamage(value?: number): void {
+    // super.getDamage(value)
+    this.scene.tweens.add({
+      targets: this,
+      duration: 100,
+      repeat: 3,
+      yoyo: true,
+      alpha: 0.5,
+      onStart: () => {
+        if (value) {
+          this.isDamaging = true
+          this.hp = this.hp - value
+        }
+      },
+      onComplete: () => {
+        this.setAlpha(1)
+        this.isDamaging = false
+
+        if (this.hp <= 0) {
+          this.scene.game.events.emit('game-over')
+          this.destroy()
+        }
+      },
+    })
+
+  }
+
   public destroy() {
     super.destroy()
     this.attackRange.destroy()
