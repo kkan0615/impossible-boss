@@ -29,6 +29,7 @@ export class Player extends Actor {
     scene.physics.add.existing(this._attackRange)
     scene.physics.world.remove(this._attackRangeBoxBody)
     this._attackRangeBoxBody.enable = false
+    scene.cameras.main.startFollow(this)
     // Hitbox
     this.hitBox = this.scene.add.rectangle(this.x, this.y, this.width / 2.2, this.height / 1.5)
     this.hitBox.isFilled = false

@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
-import { Player, } from '../classes/player'
-import { Boss, } from '../classes/enermies/bosses/boss'
+import { Player, } from '@/classes/player'
+import { Boss, } from '@/classes/enermies/bosses/boss'
+import StageScene from '@/scenes/stage'
 
 export default class StageOneScene extends Phaser.Scene {
   private map!: Phaser.Tilemaps.Tilemap
@@ -10,6 +11,7 @@ export default class StageOneScene extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer
   private player!: Player
   private boss!: Boss
+  private hpBar!: Phaser.GameObjects.Graphics
 
   constructor() {
     super(StageOneScene.name)
@@ -25,8 +27,11 @@ export default class StageOneScene extends Phaser.Scene {
 
   create() {
     this._initMap()
+    // Init user
     this.player = new Player(this, 200, 200, 'knight', 1)
+    // Init boss
     this.boss = new Boss(this, 400, 300, 'trashMonster', this.player,1)
+    /* Physics */
     this.physics.add.collider(this.player, this.wallsLayer)
     this.physics.add.collider(this.boss, this.wallsLayer)
 
@@ -36,26 +41,27 @@ export default class StageOneScene extends Phaser.Scene {
     // boss get damage
     this.physics.add.overlap(this.player.attackRange, this.boss.hitBox, this.hitOverlapCallback, null, this)
     /* Cameras setting */
-    this.cameras.main.startFollow(this.player)
     this.cameras.main.zoom = 2
-
+    this.cameras.main.centerOn(0, 0)
     /* Set game over */
-    this.game.events.once('game-over', () => {
-      console.log('done')
-      this.cameras.main.setBackgroundColor('rgba(0,0,0,0.6)')
-      this.game.scene.pause(StageOneScene.name)
-      const gameEndPhrase = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Done!!')
-        .setAlign('center')
-        .setColor('#ff0000')
-      gameEndPhrase.setPosition(
-        this.game.scale.width / 2 - gameEndPhrase.width / 2,
-        this.game.scale.height * 0.4,
-      )
-    }, this)
+    this.game.events.once('game-over', this._gameOver, this)
+
+    this.hpBar = this.add.graphics()
+    // color the bar
+    this.hpBar.fillStyle(0x2ecc71, 1)
+    // fill the bar with a rectangle
+    this.hpBar.fillRect(0, 0, 32, 8)
+    // position the bar
+    console.log(this.cameras.main)
+    this.hpBar.x = this.cameras.main.x
+    this.hpBar.y = this.cameras.main.y + 32
+    this.hpBar.scaleX = 100 / 100
   }
 
   update() {
     this.player.update()
+    // this.hpBar.x = this.player.x - 20
+    // this.hpBar.y = this.player.y - this.player.height / 2 - 4
   }
 
   private _initMap(): void {
@@ -79,5 +85,14 @@ export default class StageOneScene extends Phaser.Scene {
     if (this.player.isAttacking && !this.boss.isDamaging) {
       this.boss.getDamage(this.player.attackDamage)
     }
+  }
+
+  private _gameOver() {
+    this.cameras.main.setBackgroundColor(0xbababa)
+    this.game.scene.pause(StageOneScene.name)
+    const gameEndPhrase = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Done!!')
+      .setScrollFactor(0)
+      .setAlign('center')
+      .setColor('#ff0000')
   }
 }
