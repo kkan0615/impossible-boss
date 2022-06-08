@@ -4,8 +4,7 @@ export class Actor extends Physics.Arcade.Sprite {
   private _hp = 100
   private _maxHp = 100
   private _speed = 150
-  private _attackSpeed = 2
-  private _attackDamage = 30
+
   private _hitBox!: Phaser.GameObjects.Rectangle
   private _isDamaging = false
 
@@ -64,22 +63,6 @@ export class Actor extends Physics.Arcade.Sprite {
 
   public set maxHp(value: number) {
     this._maxHp = value
-  }
-
-  public get attackSpeed(): number {
-    return this._attackSpeed
-  }
-
-  public set attackSpeed(value: number) {
-    this._attackSpeed = value
-  }
-
-  public get attackDamage(): number {
-    return this._attackDamage
-  }
-
-  public set attackDamage(value: number) {
-    this._attackDamage = value
   }
 
   get hitBox(): Phaser.GameObjects.Rectangle {

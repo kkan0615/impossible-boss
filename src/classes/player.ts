@@ -1,5 +1,6 @@
 import { Actor, } from './actor'
 import { Physics, } from 'phaser'
+import { GameEvent, } from '@/types/gameEvent'
 
 export class Player extends Actor {
   private keyUp!: Phaser.Input.Keyboard.Key
@@ -11,6 +12,8 @@ export class Player extends Actor {
   private _attackRange!: Phaser.GameObjects.Rectangle
   private isWalking = false
   private _isAttacking = false
+  private _attackSpeed = 2
+  private _attackDamage = 30
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, scale = 1) {
     super(scene, x, y, texture, scale)
@@ -142,6 +145,22 @@ export class Player extends Actor {
     this._isAttacking = value
   }
 
+  public get attackSpeed(): number {
+    return this._attackSpeed
+  }
+
+  public set attackSpeed(value: number) {
+    this._attackSpeed = value
+  }
+
+  public get attackDamage(): number {
+    return this._attackDamage
+  }
+
+  public set attackDamage(value: number) {
+    this._attackDamage = value
+  }
+
   private _animationcomplete (anim: Phaser.Animations.Animation) {
     if (anim.key === 'Attack 1') {
       this._playIdle()
@@ -187,6 +206,7 @@ export class Player extends Actor {
         if (value) {
           this.isDamaging = true
           this.hp = this.hp - value
+          this.scene.game.events.emit(GameEvent.PLAYER_GET_DAMAGE, this.hp / this.maxHp * 100)
         }
       },
       onComplete: () => {

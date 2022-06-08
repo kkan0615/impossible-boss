@@ -1,7 +1,9 @@
 import Phaser from 'phaser'
 import { Player, } from '@/classes/player'
 import { Boss, } from '@/classes/enermies/bosses/boss'
-import StageScene from '@/scenes/stage'
+// import StageScene from '@/scenes/stage'
+import { UndeadExcutionerPuppetBoss, } from '@/classes/enermies/bosses/undeadExcutionerPuppet'
+import { Bullets, } from '@/classes/effects/bullets'
 
 export default class StageOneScene extends Phaser.Scene {
   private map!: Phaser.Tilemaps.Tilemap
@@ -11,7 +13,9 @@ export default class StageOneScene extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer
   private player!: Player
   private boss!: Boss
+  private bullets!: Bullets
   private hpBar!: Phaser.GameObjects.Graphics
+  private backgroundSound!: Phaser.Sound.BaseSound
 
   constructor() {
     super(StageOneScene.name)
@@ -23,14 +27,29 @@ export default class StageOneScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('tileMap', 'assets/tileMaps/stageOne/stageOne.json')
     this.load.aseprite('knight', 'assets/characters/knight/knight.png', 'assets/characters/knight/knight.json')
     this.load.aseprite('trashMonster', 'assets/enemies/bosses/trashMonster/trashMonster.png', 'assets/enemies/bosses/trashMonster/trashMonster.json')
+    this.load.aseprite('undeadExcutionerPuppet', 'assets/enemies/bosses/undeadExcutionerPuppet/undeadExcutionerPuppet.png', 'assets/enemies/bosses/undeadExcutionerPuppet/undeadExcutionerPuppet.json')
+    this.load.image('bullet', 'assets/effects/fire1.png')
+    this.load.audio('backgroundSound', 'assets/sounds/backgrounds/xDeviruchi - Decisive Battle.wav')
   }
 
   create() {
     this._initMap()
+    // play sound
+    // this.backgroundSound = this.sound.add('backgroundSound', { loop: true, })
+    // this.backgroundSound.play()
     // Init user
-    this.player = new Player(this, 200, 200, 'knight', 1)
+    this.player = new Player(this, 200, 200, 'knight', 1).setDepth(10)
     // Init boss
-    this.boss = new Boss(this, 400, 300, 'trashMonster', this.player,1)
+    this.boss = new UndeadExcutionerPuppetBoss(this, 400, 300, this.player)
+    // @TODO: TEST
+    // this.bullets = new Bullets(this)
+    // this.time.addEvent({
+    //   delay: 2000, // ms
+    //   callback: () => {
+    //     this.bullets.fireBullet(this.boss.x, this.boss.y)
+    //   },
+    //   callbackScope: this,
+    // })
     /* Physics */
     this.physics.add.collider(this.player, this.wallsLayer)
     this.physics.add.collider(this.boss, this.wallsLayer)
@@ -41,27 +60,20 @@ export default class StageOneScene extends Phaser.Scene {
     // boss get damage
     this.physics.add.overlap(this.player.attackRange, this.boss.hitBox, this.hitOverlapCallback, null, this)
     /* Cameras setting */
-    this.cameras.main.zoom = 2
-    this.cameras.main.centerOn(0, 0)
-    /* Set game over */
-    this.game.events.once('game-over', this._gameOver, this)
+    this.cameras.main.setSize(this.game.scale.width, this.game.scale.height)
+    this.cameras.main.setZoom(2)
 
-    this.hpBar = this.add.graphics()
-    // color the bar
-    this.hpBar.fillStyle(0x2ecc71, 1)
-    // fill the bar with a rectangle
-    this.hpBar.fillRect(0, 0, 32, 8)
-    // position the bar
-    console.log(this.cameras.main)
-    this.hpBar.x = this.cameras.main.x
-    this.hpBar.y = this.cameras.main.y + 32
-    this.hpBar.scaleX = 100 / 100
+
+    /* Set game over */
+    this.game.events.once('boss-dead', this._bossDead, this)
+    this.game.events.once('game-over', this._gameOver, this)
   }
 
   update() {
     this.player.update()
-    // this.hpBar.x = this.player.x - 20
-    // this.hpBar.y = this.player.y - this.player.height / 2 - 4
+    if (this.boss.hp <= 0) {
+      // console.log('boss die')
+    }
   }
 
   private _initMap(): void {
@@ -73,6 +85,7 @@ export default class StageOneScene extends Phaser.Scene {
     this.wallsLayer.setCollisionBetween(0, 5)
     this.wallsLayer.setCollisionByProperty({ collides: true, })
     this.physics.world.setBounds(0, 0, this.wallsLayer.width, this.wallsLayer.height)
+
   }
 
   private playerDamageOverlapCallback() {
@@ -88,11 +101,11 @@ export default class StageOneScene extends Phaser.Scene {
   }
 
   private _gameOver() {
-    this.cameras.main.setBackgroundColor(0xbababa)
-    this.game.scene.pause(StageOneScene.name)
-    const gameEndPhrase = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Done!!')
-      .setScrollFactor(0)
-      .setAlign('center')
-      .setColor('#ff0000')
+    // this.backgroundSound.destroy()
+  }
+
+  private _bossDead() {
+    // this.backgroundSound.destroy()
+    this.game.events.emit('clear-stage')
   }
 }

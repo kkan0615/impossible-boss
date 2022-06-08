@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import StageOneScene from './stageOne'
+import UIScene from '@/scenes/ui'
 
 export default class HomeScene extends Phaser.Scene {
   constructor() {
@@ -15,6 +16,7 @@ export default class HomeScene extends Phaser.Scene {
   create() {
     // @todo: test
     this.scene.start(StageOneScene.name)
+    this.scene.start(UIScene.name)
 
     const logo = this.add.image(this.cameras.main.centerX, 150, 'logo')
 
