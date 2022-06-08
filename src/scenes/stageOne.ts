@@ -32,8 +32,8 @@ export default class StageOneScene extends Phaser.Scene {
   create() {
     this._initMap()
     // play sound
-    this.backgroundSound = this.sound.add('backgroundSound', { loop: true, })
-    this.backgroundSound.play()
+    // this.backgroundSound = this.sound.add('backgroundSound', { loop: true, })
+    // this.backgroundSound.play()
     // Init user
     this.player = new Player(this, 200, 200, 'knight', 1).setDepth(10)
     // Init boss

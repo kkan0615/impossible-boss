@@ -1,6 +1,6 @@
 import { Player, } from '@/classes/player'
 import { Boss, } from '@/classes/enermies/bosses/boss'
-import Phaser from 'phaser'
+import Phaser, { Physics, } from 'phaser'
 import { GameEvent, } from '@/types/gameEvent'
 
 export class UndeadExcutionerPuppetBoss extends Boss {
@@ -10,8 +10,8 @@ export class UndeadExcutionerPuppetBoss extends Boss {
     super(scene, x, y, 'undeadExcutionerPuppet', target)
     /* UI */
     this.setScale(1.2, 1.5)
-    this.setSize(this.width * 0.5, this.height / 1.5)
     this.setOffset(20, 16)
+    this.setSize(this.width * 0.5, this.height / 1.5)
     this.setDebugBodyColor(1000)
     this.hitBox = this.scene.add.rectangle(this.x, this.y,this.width / 2, this.height, 0)
     scene.add.existing(this.hitBox)
@@ -75,7 +75,37 @@ export class UndeadExcutionerPuppetBoss extends Boss {
 
   public fireAttack(target: Player) {
     this._playAttack()
-    this._fires.fireBullet(this.x, this.y, target.x, target.y)
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y)
+    const extendedScene = this.scene as Phaser.Scene & { wallsLayer: Phaser.Tilemaps.TilemapLayer, player: Player }
+    const firstBall = this.scene.add.sprite(this.x, this.y, 'bullet')
+    this.scene.add.existing(firstBall)
+    this.scene.physics.add.existing(firstBall)
+    firstBall.setRotation(angle)
+    this.scene.physics.velocityFromRotation(angle, 500, (firstBall.body as Physics.Arcade.Body).velocity)
+
+    // const secondBall = this.scene.add.sprite(this.x - 60, this.y - 60, 'bullet')
+    // this.scene.add.existing(secondBall)
+    // this.scene.physics.add.existing(secondBall)
+    // secondBall.setRotation(angle)
+    // this.scene.physics.velocityFromRotation(angle, 500, (secondBall.body as Physics.Arcade.Body).velocity)
+    //
+    // const thirdBall = this.scene.add.sprite(this.x + 60, this.y + 60, 'bullet')
+    // this.scene.add.existing(thirdBall)
+    // this.scene.physics.add.existing(thirdBall)
+    // thirdBall.setRotation(angle)
+    // this.scene.physics.velocityFromRotation(angle, 500, (thirdBall.body as Physics.Arcade.Body).velocity)
+    //
+    // const balls = [firstBall, secondBall, thirdBall,]
+    //
+    // this.scene.physics.add.collider(balls, extendedScene.wallsLayer, (object1, object2) => {
+    //   // (object1 as Phaser.Physics.Arcade.Sprite).disableBody(true, true)
+    //   object1.destroy()
+    // },null, this)
+    //
+    // this.scene.physics.add.overlap(extendedScene.player.hitBox, balls, (player, fire) => {
+    //   fire.destroy()
+    //   extendedScene.player.getDamage(10)
+    // }, null, this)
   }
 }
 

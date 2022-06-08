@@ -11,6 +11,7 @@ export class Player extends Actor {
   private keyC!: Phaser.Input.Keyboard.Key
   private _attackRange!: Phaser.GameObjects.Rectangle
   private isWalking = false
+  private _isRolling = false
   private _isAttacking = false
   private _attackSpeed = 2
   private _attackDamage = 30
@@ -55,76 +56,65 @@ export class Player extends Actor {
       return
     this._attackRange.setPosition(this.flipX ? this.x - (this.width / 4) : this.x + (this.width / 4), this.y)
     this.hitBox.setPosition(this.x - 2, this.y + 5, )
-    this.getBody().setVelocity(0)
+    this.getBody().setVelocity(0, 0)
     if (this._isAttacking === false) {
       if (this.keyUp.isDown) {
         this.body.velocity.y = -this.speed
-        // this.getBody().setAngularVelocity()
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
       else if (this.keyLeft.isDown) {
         this.body.velocity.x = -this.speed
         this.flipX = true
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
       else if (this.keyDown.isDown) {
         this.body.velocity.y = this.speed
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
       else if (this.keyRight.isDown) {
         this.body.velocity.x = this.speed
         this.flipX = false
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
-
       if (this.keyUp.isDown && this.keyLeft.isDown) {
         this.body.velocity.x = -this.speed
         this.body.velocity.y = -this.speed
         this.flipX = true
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
       else if (this.keyDown.isDown && this.keyLeft.isDown) {
         this.body.velocity.x = -this.speed
         this.body.velocity.y = this.speed
         this.flipX = true
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
       else if (this.keyUp.isDown && this.keyRight.isDown) {
         this.body.velocity.x = this.speed
         this.body.velocity.y = -this.speed
         this.flipX = false
-        if (this.isWalking == false) {
-          this._playRun()
-        }
       }
       else if (this.keyDown.isDown && this.keyRight.isDown) {
         this.body.velocity.x = this.speed
         this.body.velocity.y = this.speed
         this.flipX = false
-        if (this.isWalking == false) {
-          this._playRun()
-        }
+
       }
 
+      if (this.isWalking == false ) {
+        this._playRun()
+      }
 
       if (!this.keyUp.isDown && !this.keyLeft.isDown && !this.keyDown.isDown && !this.keyRight.isDown && this.isWalking) {
         this._playIdle()
         this.isWalking = false
       }
+
+      if (this.keyC.isDown && !this._isRolling) {
+        this._playRoll()
+      }
     }
-    if (this.keyX.isDown) {
+    // console.log(this.angle)
+    if (this._isRolling) {
+      // console.log(velocity)
+      // this.body.velocity.x = velocity.x
+      // this.body.velocity.y = velocity.y
+    }
+
+    if (this.keyX.isDown && !this._isRolling) {
       this.attack()
     }
   }
@@ -168,6 +158,14 @@ export class Player extends Actor {
       this.isWalking = false
       this._attackRangeBoxBody.enable = false
       this.scene.physics.world.remove(this._attackRangeBoxBody)
+    } else if (anim.key === 'Roll') {
+      console.log('test')
+      this._isRolling = false
+      if (!this.isWalking) {
+        this._playIdle()
+      } else {
+        this._playRun()
+      }
     }
   }
 
@@ -178,6 +176,12 @@ export class Player extends Actor {
   private _playRun () {
     this.isWalking = true
     this.play({ key: 'Run', repeat: -1, timeScale: 1, })
+  }
+
+  private _playRoll () {
+    this._isRolling = true
+    this.isWalking = true
+    this.play({ key: 'Roll', timeScale: 1, })
   }
 
   private get _attackRangeBoxBody(): Physics.Arcade.Body {
