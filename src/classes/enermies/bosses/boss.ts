@@ -6,7 +6,7 @@ export class Boss extends Actor {
   private target!: Player
   private AGRESSOR_RADIUS = 300
   private isWalking = false
-  private isAttacking = false
+  private _isAttacking = false
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, target: Player,) {
     super(scene, x, y, texture, 1)
@@ -23,9 +23,17 @@ export class Boss extends Actor {
     // this.hitBox = this.scene.add.rectangle(this.x, this.y, this.width, this.height, 1)
   }
 
+  get isAttacking(): boolean {
+    return this._isAttacking
+  }
+
+  set isAttacking(value: boolean) {
+    this._isAttacking = value
+  }
+
   private _animationcomplete (anim: Phaser.Animations.Animation) {
     if (anim.key === 'attack') {
-      this.isAttacking = false
+      this._isAttacking = false
       this._playIdle()
     }
   }
@@ -35,36 +43,13 @@ export class Boss extends Actor {
   }
 
   public attack() {
-    if (this.isAttacking === false) {
+    if (this._isAttacking === false) {
       this.play({ key: 'attack', timeScale: 1, })
-      this.isAttacking = true
+      this._isAttacking = true
     }
   }
 
   public getDamage(value?: number) {
-    this.scene.tweens.add({
-      targets: this,
-      duration: 100,
-      repeat: 3,
-      yoyo: true,
-      alpha: 0.5,
-      onStart: () => {
-        if (value) {
-          this.isDamaging = true
-          this.hp = this.hp - value
-          console.log(this.hp / this.maxHp * 100)
-          this.scene.game.events.emit(GameEvent.BOSS_GET_DAMAGE, this.hp / this.maxHp * 100)
-        }
-      },
-      onComplete: () => {
-        this.setAlpha(1)
-        this.isDamaging = false
-
-        if (this.hp <= 0) {
-          this.scene.game.events.emit('boss-dead')
-          this.destroy()
-        }
-      },
-    })
+    super.getDamage()
   }
 }

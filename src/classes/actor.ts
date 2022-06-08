@@ -65,6 +65,10 @@ export class Actor extends Physics.Arcade.Sprite {
     this._maxHp = value
   }
 
+  public get hpPercentage() {
+    return this.hp / this._maxHp * 100
+  }
+
   get hitBox(): Phaser.GameObjects.Rectangle {
     return this._hitBox
   }

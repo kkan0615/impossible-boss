@@ -1,9 +1,6 @@
 import Phaser from 'phaser'
 import { Player, } from '@/classes/player'
-import { Boss, } from '@/classes/enermies/bosses/boss'
-// import StageScene from '@/scenes/stage'
 import { UndeadExcutionerPuppetBoss, } from '@/classes/enermies/bosses/undeadExcutionerPuppet'
-import { Bullets, } from '@/classes/effects/bullets'
 
 export default class StageOneScene extends Phaser.Scene {
   private map!: Phaser.Tilemaps.Tilemap
@@ -12,10 +9,10 @@ export default class StageOneScene extends Phaser.Scene {
   private wallsLayer!: Phaser.Tilemaps.TilemapLayer
   private groundLayer!: Phaser.Tilemaps.TilemapLayer
   private player!: Player
-  private boss!: Boss
-  private bullets!: Bullets
+  private boss!: UndeadExcutionerPuppetBoss
   private hpBar!: Phaser.GameObjects.Graphics
   private backgroundSound!: Phaser.Sound.BaseSound
+  private _nextNormalAttack = 2000
 
   constructor() {
     super(StageOneScene.name)
@@ -35,21 +32,22 @@ export default class StageOneScene extends Phaser.Scene {
   create() {
     this._initMap()
     // play sound
-    // this.backgroundSound = this.sound.add('backgroundSound', { loop: true, })
-    // this.backgroundSound.play()
+    this.backgroundSound = this.sound.add('backgroundSound', { loop: true, })
+    this.backgroundSound.play()
     // Init user
     this.player = new Player(this, 200, 200, 'knight', 1).setDepth(10)
     // Init boss
     this.boss = new UndeadExcutionerPuppetBoss(this, 400, 300, this.player)
     // @TODO: TEST
-    // this.bullets = new Bullets(this)
-    // this.time.addEvent({
-    //   delay: 2000, // ms
-    //   callback: () => {
-    //     this.bullets.fireBullet(this.boss.x, this.boss.y)
-    //   },
-    //   callbackScope: this,
-    // })
+    this.time.addEvent({
+      delay: 2000, // ms
+      callback: () => {
+        this.boss.fireAttack(this.player)
+
+      },
+      loop: true,
+      callbackScope: this,
+    })
     /* Physics */
     this.physics.add.collider(this.player, this.wallsLayer)
     this.physics.add.collider(this.boss, this.wallsLayer)
@@ -85,7 +83,6 @@ export default class StageOneScene extends Phaser.Scene {
     this.wallsLayer.setCollisionBetween(0, 5)
     this.wallsLayer.setCollisionByProperty({ collides: true, })
     this.physics.world.setBounds(0, 0, this.wallsLayer.width, this.wallsLayer.height)
-
   }
 
   private playerDamageOverlapCallback() {

@@ -45,6 +45,7 @@ export default class UIScene extends Phaser.Scene {
 
     this.game.events.on('clear-stage', this._clearStage, this)
     this.game.events.once('game-over', this._gameOver, this)
+    this.game.events.on(GameEvent.UPDATE_BOSS_MESSAGE, this._updateBossTextText, this)
     this.game.events.on(GameEvent.PLAYER_GET_DAMAGE, this._playerGetDamage, this)
     this.game.events.on(GameEvent.BOSS_GET_DAMAGE, this._bossGetDamage, this)
   }
@@ -155,14 +156,13 @@ export default class UIScene extends Phaser.Scene {
         repeat: -1,
         yoyo: true,
       })
-    } else if (hpPer > 0 && this.hpWarning) {
+    } else if (hpPer > 50 && this.hpWarning) {
       this.hpWarning.destroy()
       this.hpWarning = null
     }
   }
 
   private _bossGetDamage(hpPer: number) {
-    console.log((this.game.scale.width * 2) * (hpPer / 100))
     if (hpPer === 0) {
       this._bossHpBar.width = 0
     } else {
@@ -170,7 +170,7 @@ export default class UIScene extends Phaser.Scene {
     }
   }
 
-  public updateBossTextText(value?: string) {
+  private _updateBossTextText(value?: string) {
     this.bossText.setVisible(!!value)
     this.bossText.setText(value)
   }
